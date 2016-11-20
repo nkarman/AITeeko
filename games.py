@@ -1,10 +1,10 @@
 """Games, or Adversarial Search (Chapter 5)"""
 
-from collections import namedtuple
 import random
+from collections import namedtuple
 
-from utils import argmax
-from canvas import Canvas
+from gameTesting.canvas import Canvas
+from gameTesting.utils import argmax
 
 infinity = float('inf')
 GameState = namedtuple('GameState', 'to_move, utility, board, moves')

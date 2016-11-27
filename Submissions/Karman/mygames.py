@@ -1,29 +1,24 @@
-from collections import namedtuple
 from games import (Game)
 
 class GameState:
-    def __init__(self, to_move, board, label=None):
+    def __init__(self, to_move, board, firstPhase, label=None,):
         self.to_move = to_move
         self.board = board
         self.label = label
+        self.firstPhase = firstPhase
 
     def __str__(self):
         if self.label == None:
             return super(GameState, self).__str__()
         return self.label
 
-class FlagrantCopy(Game):
-    """A flagrant copy of TicTacToe, from game.py
-    It's simplified, so that moves and utility are calculated as needed
-    Play TicTacToe on an h x v board, with Max (first player) playing 'X'.
-    A state has the player to move and a board, in the form of
-    a dict of {(x, y): Player} entries, where Player is 'X' or 'O'."""
-
-    def __init__(self, h=3, v=3, k=3):
+class Teeko:
+    def __init__(self,h=5,v=5,k=4):
         self.h = h
         self.v = v
         self.k = k
-        self.initial = GameState(to_move='X', board={})
+        self.initial = GameState(to_move='X', board={}, firstPhase=True)
+
 
     def actions(self, state):
         try:
@@ -32,10 +27,20 @@ class FlagrantCopy(Game):
             pass
         "Legal moves are any square not yet taken."
         moves = []
+        #include moves for both phases of games
         for x in range(1, self.h + 1):
             for y in range(1, self.v + 1):
-                if (x,y) not in state.board.keys():
-                    moves.append((x,y))
+                if (x, y) not in state.board.keys():
+                    moves.append((x, y))
+        if state.firstPhase == True:
+            state.moves = moves
+        else:
+           # create possible moves for each X or O to move to an adjacent square
+           # for each token in to_move create a dictionary of l, r, u, d
+           # format (x,y):up, (x,y):down, (x,y):left, (x,y):right
+            # dummy statement below so code compiles
+            x = 0
+
         state.moves = moves
         return moves
 
@@ -47,14 +52,26 @@ class FlagrantCopy(Game):
             return 'X'
         return None
 
+
     def result(self, state, move):
         if move not in self.actions(state):
             return state  # Illegal move has no effect
         board = state.board.copy()
+        self.firstPhase = state.firstPhase
         player = state.to_move
-        board[move] = player
+        if state.firstPhase == True:
+            board[move] = player
+        else:
+            # set actions for second phase moves
+            # account for dictionary of dictionaries
+            board[move] = player
         next_mover = self.opponent(player)
-        return GameState(to_move=next_mover, board=board)
+        if len(board) >= 8:
+            self.firstPhase = False
+        else:
+            self.firstPhase = True
+        return GameState(to_move=next_mover, board=board, firstPhase=self.firstPhase)
+
 
     def utility(self, state, player):
         "Return the value to player; 1 for win, -1 for loss, 0 otherwise."
@@ -69,118 +86,36 @@ class FlagrantCopy(Game):
         state.utility = util
         return util if player == 'X' else -util
 
-    # Did I win?
+
+# Did I win?
     def check_win(self, board, player):
         # check rows
         for y in range(1, self.v + 1):
-            if self.k_in_row(board, (1,y), player, (1,0)):
+            if self.k_in_row(board, (1, y), player, (1, 0)):
                 return 1
         # check columns
         for x in range(1, self.h + 1):
-            if self.k_in_row(board, (x,1), player, (0,1)):
+            if self.k_in_row(board, (x, 1), player, (0, 1)):
                 return 1
         # check \ diagonal
-        if self.k_in_row(board, (1,1), player, (1,1)):
+        if self.k_in_row(board, (1, 1), player, (1, 1)):
             return 1
         # check / diagonal
-        if self.k_in_row(board, (3,1), player, (-1,1)):
+        if self.k_in_row(board, (3, 1), player, (-1, 1)):
             return 1
+        # create conditional to check win on "block" win condition
         return 0
 
-    # does player have K in a row? return 1 if so, 0 if not
-    def k_in_row(self, board, start, player, direction):
-        "Return true if there is a line through start on board for player."
-        (delta_x, delta_y) = direction
-        x, y = start
-        n = 0  # n is number of moves in row
-        while board.get((x, y)) == player:
-            n += 1
-            x, y = x + delta_x, y + delta_y
-        x, y = start
-        while board.get((x, y)) == player:
-            n += 1
-            x, y = x - delta_x, y - delta_y
-        n -= 1  # Because we counted start itself twice
-        return n >= self.k
-
-    def terminal_test(self, state):
-        "A state is terminal if it is won or there are no empty squares."
-        return self.utility(state, 'X') != 0 or len(self.actions(state)) == 0
-
-    def display(self, state):
-        board = state.board
-        for x in range(1, self.h + 1):
-            for y in range(1, self.v + 1):
-                print(board.get((x, y), '.'), end=' ')
-            print()
-
-
-myGame = FlagrantCopy()
-
-won = GameState(
-    to_move = 'O',
-    board = {(1,1): 'X', (1,2): 'X', (1,3): 'X',
-             (2,1): 'O', (2,2): 'O',
-            },
-    label = 'won'
-)
-
-winin1 = GameState(
+myGame = Teeko()
+gameStart = GameState(
     to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O',
-            },
-    label = 'winin1'
-)
-
-losein1 = GameState(
-    to_move = 'O',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O',
-             (3,1): 'X',
-            },
-    label = 'losein1'
-)
-
-winin3 = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'O',
-             (2,1): 'X',
-             (3,1): 'O',
-            },
-    label = 'winin3'
-)
-
-losein3 = GameState(
-    to_move = 'O',
-    board = {(1,1): 'X',
-             (2,1): 'X',
-             (3,1): 'O', (1,2): 'X', (1,2): 'O',
-            },
-    label = 'losein3'
-)
-
-winin5 = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'O',
-             (2,1): 'X',
-            },
-    label = 'winin5'
-)
-
-lost = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O', (2,3): 'O',
-             (3,1): 'X'
-            },
-    label = 'lost'
+    board =  {},
+    firstPhase = True,
+    label = 'gameStart'
 )
 
 myGames = {
     myGame: [
-        won,
-        winin1, losein1, winin3, losein3, winin5,
-        lost,
+        gameStart
     ]
 }

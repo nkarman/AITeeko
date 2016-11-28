@@ -1,6 +1,8 @@
 from games import (Game)
 
 class GameState:
+
+
     def __init__(self, to_move, board, firstPhase, label=None,):
         self.to_move = to_move
         self.board = board
@@ -12,12 +14,12 @@ class GameState:
             return super(GameState, self).__str__()
         return self.label
 
-class Teeko:
+class Teeko(Game):
     def __init__(self,h=5,v=5,k=4):
         self.h = h
         self.v = v
         self.k = k
-        self.initial = GameState(to_move='X', board={}, firstPhase=True)
+        self.initial = GameState(to_move ='X', board = {}, firstPhase = True)
 
 
     def actions(self, state):
@@ -86,6 +88,21 @@ class Teeko:
         state.utility = util
         return util if player == 'X' else -util
 
+    def k_in_row(self, board, start, player, direction):
+        "Return true if there is a line through start on board for player."
+        (delta_x, delta_y) = direction
+        x, y = start
+        n = 0  # n is number of moves in row
+        while board.get((x, y)) == player:
+            n += 1
+            x, y = x + delta_x, y + delta_y
+        x, y = start
+        while board.get((x, y)) == player:
+            n += 1
+            x, y = x - delta_x, y - delta_y
+        n -= 1  # Because we counted start itself twice
+        return n >= self.k
+
 
 # Did I win?
     def check_win(self, board, player):
@@ -107,6 +124,7 @@ class Teeko:
         return 0
 
 myGame = Teeko()
+
 gameStart = GameState(
     to_move = 'X',
     board =  {},
@@ -114,8 +132,17 @@ gameStart = GameState(
     label = 'gameStart'
 )
 
+winin1 = GameState(
+    to_move = 'X',
+    board = {(1,1): 'X', (1,2): 'X',
+             (2,1): 'O', (2,2): 'O',
+            },
+    label = 'winin1',
+    firstPhase = True
+)
+
 myGames = {
     myGame: [
-        gameStart
+        gameStart, winin1
     ]
 }

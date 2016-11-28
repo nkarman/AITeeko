@@ -1,11 +1,7 @@
 import importlib
-import sys
 import traceback
-from io import StringIO
-
-from gameTesting.util import roster, print_table
 from games import alphabeta_search
-
+from gameTesting.util import roster, print_table
 
 class MyException(Exception):
     pass
@@ -96,21 +92,7 @@ def try_to_play(game):
             traceback.print_exc()
             done = True
 
-def makeDisplayTable(game, states):
-    old_stdout = sys.stdout
-    displays = []
-    for state in states:
-        sys.stdout = mystdout = StringIO()
-        print(state)
-        game.display(state)
-        block = mystdout.getvalue()
-        displays.append(block)
-        mystdout.close()
-
-    old_stdout = sys.stdout
-    for display in displays:
-        lines = display.split('\n')
-        print(lines)
+AB_searches = [ make_ab(d) for d in range(9)]
 
 def makeMoveTable(game, states):
     header = [['state:', 'moves']]
@@ -123,8 +105,6 @@ def makeMoveTable(game, states):
         table.append(row)
     print_table(table, header)
 
-AB_searches = [ make_ab(d) for d in range(9)]
-
 def makeABtable(game, states):
     topLeft = str(game)[1:-1]
     header = [[str(topLeft)]]
@@ -134,14 +114,7 @@ def makeABtable(game, states):
     table = []
     for state in states:
         row = [str(state)[:maxChars]]
-        maxDepth = len(AB_searches)
-        if hasattr(state, 'maxDepth'):
-            maxDepth = min(maxDepth, state.maxDepth + 1)
-        for abi in range(len(AB_searches)):
-            if(abi > maxDepth):
-                row.append(None)
-                continue
-            abSearch = AB_searches[abi]
+        for abSearch in AB_searches:
             bestMove = abSearch(game, state)
             row.append(str(bestMove))
         table.append(row)
@@ -153,9 +126,7 @@ def try_games(games):
         print()
         makeMoveTable(g, games[g])
         print()
-        makeDisplayTable(g, games[g])
-        # print()
-        # try_to_play(g)
+        try_to_play(g)
 
 submissions = {}
 scores = {}

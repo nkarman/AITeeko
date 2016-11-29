@@ -18,6 +18,9 @@ class GameState:
             return super(GameState, self).__str__()
         return self.label
 
+
+
+
 class Teeko(Game):
     def __init__(self,h=5,v=5,k=4):
         self.h = h
@@ -33,7 +36,8 @@ class Teeko(Game):
             pass
         "Legal moves are any square not yet taken."
         moves = []
-        tokens = []
+        secondMoves = []
+        secondMovesDict = {}
         #include moves for both phases of games
         for x in range(1, self.h + 1):
             for y in range(1, self.v + 1):
@@ -42,16 +46,52 @@ class Teeko(Game):
         if state.firstPhase == True:
             state.moves = moves
         else:
-            secondMoves = []
+
             for x in range(1, self.h + 1):
                 for y in range(1, self.v + 1):
                     if (x, y) in state.board.keys():
                         if state.to_move == state.board[(x,y)]:
                             secondMoves.append((x,y))
-
+                            checkLeft(secondMoves, state)
+                            # checkLeft()
+                            # check left will add possible left moves to a dictionary with location, and possible moves
+                            # if true, x-1,y will be added to possible moves for x,y
+                            # makes a call to checkadjaecent
+                            # checkRight
+                            # checkUp
+                            # checkDown
 
             state.moves = secondMoves
         return moves
+
+    def checkLeft(self, secondMoves, state):
+        for token in secondMoves:
+            tokenX = token[0]
+            tokenY = token[1]
+            if tokenX ==  1:
+                pass
+            else if ((tokenX, tokenY) in state.board.keys()):
+
+
+
+
+        #determines if game token is adjacent to any other game token
+        # to be called from
+
+    def checkAdjacent(secondMoves, state):
+        for token in secondMoves:
+            secondMoves.index(token)
+            tokenX =  token.index(o)
+            tokenY = token.index(1)
+            if(((tokenX+1,tokenY) in state.board.keys()) and ((tokenX+1,tokenY) in state.board.keys())) or ((tokenX+1,tokenY+1) in state.board.keys()):
+
+
+            return 0
+        pass
+
+
+
+
 
     # defines the order of play
     def opponent(self, player):

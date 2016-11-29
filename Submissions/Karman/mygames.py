@@ -8,6 +8,10 @@ class GameState:
         self.board = board
         self.label = label
         self.firstPhase = firstPhase
+        if len(board) > 7:
+            self.firstPhase = False
+        else:
+            self.firstPhase = True
 
     def __str__(self):
         if self.label == None:
@@ -29,6 +33,7 @@ class Teeko(Game):
             pass
         "Legal moves are any square not yet taken."
         moves = []
+        tokens = []
         #include moves for both phases of games
         for x in range(1, self.h + 1):
             for y in range(1, self.v + 1):
@@ -37,13 +42,15 @@ class Teeko(Game):
         if state.firstPhase == True:
             state.moves = moves
         else:
-           # create possible moves for each X or O to move to an adjacent square
-           # for each token in to_move create a dictionary of l, r, u, d
-           # format (x,y):up, (x,y):down, (x,y):left, (x,y):right
-            # dummy statement below so code compiles
-            x = 0
+            secondMoves = []
+            for x in range(1, self.h + 1):
+                for y in range(1, self.v + 1):
+                    if (x, y) in state.board.keys():
+                        if state.to_move == state.board[(x,y)]:
+                            secondMoves.append((x,y))
 
-        state.moves = moves
+
+            state.moves = secondMoves
         return moves
 
     # defines the order of play
@@ -68,10 +75,6 @@ class Teeko(Game):
             # account for dictionary of dictionaries
             board[move] = player
         next_mover = self.opponent(player)
-        if len(board) >= 8:
-            self.firstPhase = False
-        else:
-            self.firstPhase = True
         return GameState(to_move=next_mover, board=board, firstPhase=self.firstPhase)
 
 
@@ -123,6 +126,13 @@ class Teeko(Game):
         # create conditional to check win on "block" win condition
         return 0
 
+    def display(self, state):
+        board = state.board
+        for x in range(1, self.h + 1):
+            for y in range(1, self.v + 1):
+                print(board.get((x, y), '.'), end=' ')
+            print()
+
 myGame = Teeko()
 
 gameStart = GameState(
@@ -143,6 +153,5 @@ winin1 = GameState(
 
 myGames = {
     myGame: [
-        gameStart, winin1
     ]
 }

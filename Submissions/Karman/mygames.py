@@ -27,6 +27,8 @@ class Teeko(Game):
         self.v = v
         self.k = k
         self.initial = GameState(to_move ='X', board = {}, firstPhase = True)
+        secondMovesDict = {}
+        self.secondMovesDict = secondMovesDict
 
 
     def actions(self, state):
@@ -37,59 +39,42 @@ class Teeko(Game):
         "Legal moves are any square not yet taken."
         moves = []
         secondMoves = []
-        secondMovesDict = {}
         #include moves for both phases of games
         for x in range(1, self.h + 1):
             for y in range(1, self.v + 1):
                 if (x, y) not in state.board.keys():
+                    #(x,y) = (y,x)
                     moves.append((x, y))
         if state.firstPhase == True:
             state.moves = moves
+            return moves
         else:
-
             for x in range(1, self.h + 1):
                 for y in range(1, self.v + 1):
                     if (x, y) in state.board.keys():
                         if state.to_move == state.board[(x,y)]:
-                            secondMoves.append((x,y))
-                            checkLeft(secondMoves, state)
-                            # checkLeft()
-                            # check left will add possible left moves to a dictionary with location, and possible moves
-                            # if true, x-1,y will be added to possible moves for x,y
-                            # makes a call to checkadjaecent
-                            # checkRight
-                            # checkUp
-                            # checkDown
-
+                            #check left statements
+                            if x is not 1:
+                                if (x-1,y) not in state.board.keys():
+                                    self.secondMovesDict[x,y, "left"] = (x-1,y)
+                                    secondMoves.append((x,y, "left"))
+                            #check right statements
+                            if x is not 5:
+                                if (x+1,y) not in state.board.keys():
+                                    self.secondMovesDict[x,y, "right"] = (x+1,y)
+                                    secondMoves.append((x,y,"right"))
+                            #check up statements
+                            if y is not 1:
+                                if (x, y-1) not in state.board.keys():
+                                    self.secondMovesDict[x,y,"up"] = (x,y-1)
+                                    secondMoves.append((x, y, "up"))
+                            #check down statements
+                            if y is not 5:
+                                if (x, y+1) not in state.board.keys():
+                                    self.secondMovesDict[x,y,"down"] = (x,y+1)
+                                    secondMoves.append((x, y, "down"))
             state.moves = secondMoves
-        return moves
-
-    def checkLeft(self, secondMoves, state):
-        for token in secondMoves:
-            tokenX = token[0]
-            tokenY = token[1]
-            if tokenX ==  1:
-                pass
-            else if ((tokenX, tokenY) in state.board.keys()):
-
-
-
-
-        #determines if game token is adjacent to any other game token
-        # to be called from
-
-    def checkAdjacent(secondMoves, state):
-        for token in secondMoves:
-            secondMoves.index(token)
-            tokenX =  token.index(o)
-            tokenY = token.index(1)
-            if(((tokenX+1,tokenY) in state.board.keys()) and ((tokenX+1,tokenY) in state.board.keys())) or ((tokenX+1,tokenY+1) in state.board.keys()):
-
-
-            return 0
-        pass
-
-
+        return secondMoves
 
 
 
@@ -111,9 +96,20 @@ class Teeko(Game):
         if state.firstPhase == True:
             board[move] = player
         else:
-            # set actions for second phase moves
-            # account for dictionary of dictionaries
-            board[move] = player
+            x = move[0]
+            y = move[1]
+            if move[2] == "left":
+                del board[x,y]
+                board[x - 1, y] = player
+            if move[2] == "right":
+                del board[x, y]
+                board[x + 1, y] = player
+            if move[2] == "up":
+                del board[x, y]
+                board[x, y - 1] = player
+            if move[2] == "down":
+                del board[x, y]
+                board[x, y + 1] = player
         next_mover = self.opponent(player)
         return GameState(to_move=next_mover, board=board, firstPhase=self.firstPhase)
 
@@ -125,9 +121,9 @@ class Teeko(Game):
         except:
             pass
         board = state.board
-        util = self.check_win(board, 'X')
+        util = self.check_win(board, 'X', state =state)
         if util == 0:
-            util = -self.check_win(board, 'O')
+            util = -self.check_win(board, 'O', state= state)
         state.utility = util
         return util if player == 'X' else -util
 
@@ -148,7 +144,7 @@ class Teeko(Game):
 
 
 # Did I win?
-    def check_win(self, board, player):
+    def check_win(self, board, player, state):
         # check rows
         for y in range(1, self.v + 1):
             if self.k_in_row(board, (1, y), player, (1, 0)):
@@ -164,32 +160,36 @@ class Teeko(Game):
         if self.k_in_row(board, (3, 1), player, (-1, 1)):
             return 1
         # create conditional to check win on "block" win condition
+        # for x in range(1, self.h + 1):
+        #     for y in range(1, self.v + 1):
+        #         if (x, y) in state.board.keys():
+        #             if state.to_move == state.board[(x, y)]:
+        #                 #bottom left corner
+        #                 if (x,y-1) in state.board.keys() and (x+1,y-1) in state.board.keys() and (x+1,y) in state.board.keys():
+        #                     return 1
+        #                 #bottom right corner
+        #                 if (x,y-1) in state.board.keys() and (x-1,y-1) in state.board.keys() and (x-1,y) in state.board.keys():
+        #                     return 1
+        #                 #top right corner
+        #                 if (x-1,y) in state.board.keys() and (x-1,y+1) in state.board.keys() and (x,y+1) in state.board.keys():
+        #                     return 1
+        #                 # top left corner
+        #                 if (x,y+1) in state.board.keys() and (x+1,y+1) in state.board.keys() and (x+1,y) in state.board.keys():
+        #                     return 1
         return 0
 
     def display(self, state):
         board = state.board
         for x in range(1, self.h + 1):
             for y in range(1, self.v + 1):
-                print(board.get((x, y), '.'), end=' ')
+                print(board.get((y, x), '.'), end=' ')
             print()
 
+    def terminal_test(self, state):
+        "A state is terminal if it is won or there are no empty squares."
+        return self.utility(state, state.to_move) != 0 or len(self.actions(state)) == 0
+
 myGame = Teeko()
-
-gameStart = GameState(
-    to_move = 'X',
-    board =  {},
-    firstPhase = True,
-    label = 'gameStart'
-)
-
-winin1 = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O',
-            },
-    label = 'winin1',
-    firstPhase = True
-)
 
 myGames = {
     myGame: [

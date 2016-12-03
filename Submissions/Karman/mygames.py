@@ -160,22 +160,28 @@ class Teeko(Game):
         if self.k_in_row(board, (3, 1), player, (-1, 1)):
             return 1
         # create conditional to check win on "block" win condition
-        # for x in range(1, self.h + 1):
-        #     for y in range(1, self.v + 1):
-        #         if (x, y) in state.board.keys():
-        #             if state.to_move == state.board[(x, y)]:
-        #                 #bottom left corner
-        #                 if (x,y-1) in state.board.keys() and (x+1,y-1) in state.board.keys() and (x+1,y) in state.board.keys():
-        #                     return 1
-        #                 #bottom right corner
-        #                 if (x,y-1) in state.board.keys() and (x-1,y-1) in state.board.keys() and (x-1,y) in state.board.keys():
-        #                     return 1
-        #                 #top right corner
-        #                 if (x-1,y) in state.board.keys() and (x-1,y+1) in state.board.keys() and (x,y+1) in state.board.keys():
-        #                     return 1
-        #                 # top left corner
-        #                 if (x,y+1) in state.board.keys() and (x+1,y+1) in state.board.keys() and (x+1,y) in state.board.keys():
-        #                     return 1
+
+        for x in range(1, self.h + 1):
+            for y in range(1, self.v + 1):
+                if (x, y) in state.board.keys():
+                    if state.to_move == state.board[(x, y)]:
+                        #bottom left corner
+                        if (x,y-1) in state.board.keys() and (x+1,y-1) in state.board.keys() and (x+1,y) in state.board.keys():
+                            if state.board[x,y-1] == state.to_move and state.board[x+1 ,y-1] == state.to_move and state.board[x+1,y] == state.to_move:
+                                return 1
+                        #bottom right corner
+                        if (x,y-1) in state.board.keys() and (x-1,y-1) in state.board.keys() and (x-1,y) in state.board.keys():
+                            if state.board[x, y - 1] == state.to_move and state.board[x-1,y-1] == state.to_move and state.board[x-1,y] == state.to_move:
+                                return 1
+                        #top right corner
+                        if (x-1,y) in state.board.keys() and (x-1,y+1) in state.board.keys() and (x,y+1) in state.board.keys():
+                            if state.board[x-1,y] == state.to_move and state.board[x-1, y+1] == state.to_move and state.board[x,y+1] == state.to_move:
+                                return 1
+                        # top left corner
+                        if (x,y+1) in state.board.keys() and (x+1,y+1) in state.board.keys() and (x+1,y) in state.board.keys():
+                            if state.board[x,y+1] == state.to_move and state.board[x+1,y+1] == state.to_move and state.board[x+1, y + 1] == state.to_move:
+                                return 1
+                        break
         return 0
 
     def display(self, state):

@@ -113,7 +113,7 @@ class Teeko(Game):
         next_mover = self.opponent(player)
         return GameState(to_move=next_mover, board=board, firstPhase=self.firstPhase)
 
-
+    # Partially Adapted from AIMA Tic-Tac-Toe
     def utility(self, state, player):
         "Return the value to player; 1 for win, -1 for loss, 0 otherwise."
         try:
@@ -127,6 +127,7 @@ class Teeko(Game):
         state.utility = util
         return util if player == 'X' else -util
 
+    #Adapted from AIMA Tic-Tac-Toe
     def k_in_row(self, board, start, player, direction):
         "Return true if there is a line through start on board for player."
         (delta_x, delta_y) = direction
@@ -144,6 +145,7 @@ class Teeko(Game):
 
 
 # Did I win?
+# Partially Adapted from AIMA Tic-Tac-Toe
     def check_win(self, board, player, state):
         # check rows
         for y in range(1, self.v + 1):
@@ -160,7 +162,6 @@ class Teeko(Game):
         if self.k_in_row(board, (3, 1), player, (-1, 1)):
             return 1
         # create conditional to check win on "block" win condition
-
         for x in range(1, self.h + 1):
             for y in range(1, self.v + 1):
                 if (x, y) in state.board.keys():
@@ -183,7 +184,7 @@ class Teeko(Game):
                                 return 1
                         break
         return 0
-
+# Adapted from AIMA Tic-Tac-Toe
     def display(self, state):
         board = state.board
         for x in range(1, self.h + 1):
@@ -192,7 +193,6 @@ class Teeko(Game):
             print()
 
     def terminal_test(self, state):
-        "A state is terminal if it is won or there are no empty squares."
         return self.utility(state, state.to_move) != 0 or len(self.actions(state)) == 0
 
 myGame = Teeko()
